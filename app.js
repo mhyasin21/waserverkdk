@@ -76,8 +76,9 @@ client.on('message', msg => {
     });
   } else {
    
-    msg.reply('Hai, Terimakasih telah menghubungi *KDK* , Nomor whatsapp ini adalah robot yang bertugas hanya mengirim pesan.\r\n\r\njika anda butuh bantuan silahkan hubungi via *Whatsapp* di wa.me/6281367663843.\r\n\r\nSalam Team *KDK* ');
+   msg.reply('Hai, Terimakasih telah menghubungi *KDK* , Nomor whatsapp ini adalah robot yang bertugas hanya mengirim pesan.\r\n\r\njika anda butuh bantuan silahkan hubungi via *Whatsapp* di \r\nwa.me/6281367663843 (ADMIN REKAP)\r\nwa.me/62895604926143 (ARI CS 1 / BATAS WILAYAH ANTAR)\r\nwa.me/6281274022278 (RAHMAN CS 2 / PAKET BERMASALAH)\r\nwa.me/6282246276755 (YASIN CS3 / PRIHAL CASHBACK).\r\n\r\nSalam Team *KDK* ');
 	
+	  	
   
   } 
 
