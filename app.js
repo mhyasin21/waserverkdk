@@ -155,15 +155,6 @@ io.on('connection', function(socket) {
     socket.emit('message', 'Auth failure, restarting...');
   });
 
-  client.on('disconnected', (reason) => {
-    socket.emit('message', 'Whatsapp is disconnected!');
-    fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-        if(err) return console.log(err);
-        console.log('Session file deleted!');
-    });
-    client.destroy();
-    client.initialize();
-  });
 });
 
 
