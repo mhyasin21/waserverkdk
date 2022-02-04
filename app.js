@@ -74,7 +74,12 @@ client.on('message', msg => {
         msg.reply(replyMsg);
       }
     });
-  }
+  } else {
+   
+    msg.reply('Hai, Terimakasih telah menghubungi *KDK* , Nomor whatsapp ini adalah robot yang bertugas hanya mengirim pesan.\r\n\r\njika anda butuh bantuan silahkan hubungi via *Whatsapp* di wa.me/6281367663843.\r\n\r\nSalam Team *KDK* ');
+	
+  
+  } 
 
   // Downloading media
   if (msg.hasMedia) {
