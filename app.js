@@ -4,9 +4,12 @@ const { body, validationResult } = require('express-validator');
 const socketIO = require('socket.io');
 const qrcode = require('qrcode');
 const http = require('http');
-const fs = require('fs');
+
 const { phoneNumberFormatter } = require('./helpers/formatter');
+
 const fileUpload = require('express-fileupload');
+
+
 const axios = require('axios');
 const mime = require('mime-types');
 
@@ -17,24 +20,90 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 app.use(express.json());
+
 app.use(express.urlencoded({
   extended: true
 }));
-app.use(fileUpload({
-  debug: true
-}));
 
-const SESSION_FILE_PATH = './whatsapp-session.json';
-let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionCfg = require(SESSION_FILE_PATH);
+
+
+
+
+ const readSessionWa = 
+
+ axios.get('https://api.kurirdalamkota.com/developer/booking/server_wa')
+		.then(function(response){
+			if(Object.keys(response.data).length > 0){
+				    
+				 return response.data[0]['session'];	
+			}
+		});
+
+ 
+
+
+
+
+ 
+
+
+
+
+const URL_CREATE_SESSION = "https://api.kurirdalamkota.com/developer/booking/create_session_wa";
+const saveSessionWA = async function (session) {
+
+	try{
+		const data_session = {
+			session_wa: JSON.stringify(session),
+			number_wa: 'bhmm',
+			
+		}
+
+		axios.post(URL_CREATE_SESSION,data_session)
+		.then(function(response){
+				
+			  console.log('session berhasil di simpan',JSON.parse(JSON.stringify(session)));		
+		})		
+	}catch(err){
+		
+		  console.log('session gagal di simpan');	
+	}
+	
+	
 }
 
-app.get('/', (req, res) => {
+
+  
+  
+const jalanwoy = (async () => {
+	
+	
+app.get('/', async (req, res) => {
   res.sendFile('index.html', {
     root: __dirname
-  });
-});
+  });  
+ 
+})
+ 
+
+const savedSession = await readSessionWa.then(function(result) {
+					   return result;
+					 });
+
+app.get('/cek', async (req, res) => {
+	
+	
+	
+	res.send(savedSession);
+	
+	console.log('cek',savedSession)
+	res.end();
+ })
+ 
+
+ 
+				 
+		
 
 const client = new Client({
   restartOnAuthFail: true,
@@ -51,11 +120,13 @@ const client = new Client({
       '--disable-gpu'
     ],
   },
-  session: sessionCfg
+  session: JSON.parse(savedSession)
 });
 
 client.on('message', msg => {
-  if (msg.body == '!ping') {
+	
+	
+  if (msg.body == 'P') {
     msg.reply('pong');
   } else if (msg.body == 'good morning') {
     msg.reply('selamat pagi');
@@ -75,12 +146,10 @@ client.on('message', msg => {
       }
     });
   } else {
-   
-   msg.reply('Hai, Terimakasih telah menghubungi *KDK* , Nomor whatsapp ini adalah robot yang bertugas hanya mengirim pesan.\r\n\r\njika anda butuh bantuan silahkan hubungi via *Whatsapp* di \r\nwa.me/6281367663843 (ADMIN REKAP)\r\nwa.me/62895604926143 (ARI CS 1 / BATAS WILAYAH ANTAR)\r\nwa.me/6281274022278 (RAHMAN CS 2 / PAKET BERMASALAH)\r\nwa.me/6282246276755 (YASIN CS3 / PRIHAL CASHBACK).\r\n\r\nSalam Team *KDK* ');
+	  msg.reply('Hai, Terimakasih telah menghubungi *KDK* , Nomor whatsapp ini adalah robot yang bertugas hanya mengirim pesan.\r\n\r\njika anda butuh bantuan silahkan hubungi via *Whatsapp* di \r\nwa.me/6281367663843 (ADMIN REKAP)\r\nwa.me/62895604926143 (ARI CS 1 / BATAS WILAYAH ANTAR)\r\nwa.me/6281274022278 (RAHMAN CS 2 / PAKET BERMASALAH)\r\nwa.me/6282246276755 (YASIN CS3 / PRIHAL CASHBACK).\r\n\r\nSalam Team *KDK* ');
 	
-	  	
-  
-  } 
+	  
+  }
 
   // Downloading media
   if (msg.hasMedia) {
@@ -124,13 +193,16 @@ client.initialize();
 
 // Socket IO
 io.on('connection', function(socket) {
+	
   socket.emit('message', 'Connecting...');
+
 
   client.on('qr', (qr) => {
     console.log('QR RECEIVED', qr);
     qrcode.toDataURL(qr, (err, url) => {
       socket.emit('qr', url);
-      socket.emit('message', 'QR Code received, scan please!');
+      socket.emit('message', 'SCAN QR DULU!');
+	  
     });
   });
 
@@ -140,20 +212,25 @@ io.on('connection', function(socket) {
   });
 
   client.on('authenticated', (session) => {
-    socket.emit('authenticated', 'Whatsapp is authenticated!');
-    socket.emit('message', 'Whatsapp is authenticated!');
+    socket.emit('authenticated', 'MENCOBA KONEK!');
+    socket.emit('message', 'Whatsapp sudah konek!');
     console.log('AUTHENTICATED', session);
-    sessionCfg = session;
-    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
-      if (err) {
-        console.error(err);
-      }
-    });
+   
+   
+	saveSessionWA(session);
+	//buat session di api
+	
+	return;
+	
+	
+	
   });
 
   client.on('auth_failure', function(session) {
     socket.emit('message', 'Auth failure, restarting...');
+	   console.log('session expired', savedSession);
   });
+
 
 });
 
@@ -182,7 +259,7 @@ app.post('/send-message', [
   }
 
   const number = phoneNumberFormatter(req.body.number);
-  const message = req.body.message;
+  const message = 'hai '+req.body.number;
 
   const isRegisteredNumber = await checkRegisteredNumber(number);
 
@@ -205,6 +282,7 @@ app.post('/send-message', [
     });
   });
 });
+
 
 // Send media
 app.post('/send-media', async (req, res) => {
@@ -306,7 +384,8 @@ app.post('/send-group-message', [
 app.post('/clear-message', [
   body('number').notEmpty(),
 ], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
+ 
+ const errors = validationResult(req).formatWith(({
     msg
   }) => {
     return msg;
@@ -345,6 +424,28 @@ app.post('/clear-message', [
   })
 });
 
+
 server.listen(port, function() {
   console.log('App running on *: ' + port);
+
 });
+
+	
+	
+})
+
+jalanwoy();
+  
+  
+  
+  
+
+  
+  
+	
+	
+
+
+
+	
+ 
