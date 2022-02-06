@@ -5,6 +5,8 @@ const socketIO = require('socket.io');
 const qrcode = require('qrcode');
 const http = require('http');
 
+
+
 const { phoneNumberFormatter } = require('./helpers/formatter');
 
 const fileUpload = require('express-fileupload');
@@ -55,14 +57,16 @@ const saveSessionWA = async function (session) {
 	try{
 		const data_session = {
 			session_wa: JSON.stringify(session),
-			number_wa: 'bhmm',
+			number_wa: Date.now(),
 			
 		}
 
 		axios.post(URL_CREATE_SESSION,data_session)
 		.then(function(response){
 				
-			  console.log('session berhasil di simpan',JSON.parse(JSON.stringify(session)));		
+			  console.log('session berhasil di simpan',JSON.parse(JSON.stringify(session)));	
+			
+				  
 		})		
 	}catch(err){
 		
@@ -211,7 +215,7 @@ io.on('connection', function(socket) {
     socket.emit('message', 'Whatsapp is ready!');
   });
 
-  client.on('authenticated', (session) => {
+  client.on('authenticated',  (session) => {
     socket.emit('authenticated', 'MENCOBA KONEK!');
     socket.emit('message', 'Whatsapp sudah konek!');
     console.log('AUTHENTICATED', session);
@@ -220,7 +224,9 @@ io.on('connection', function(socket) {
 	saveSessionWA(session);
 	//buat session di api
 	
-	return;
+
+	
+	
 	
 	
 	
