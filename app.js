@@ -264,8 +264,8 @@ app.post('/send-message', [
     });
   }
 
-  const number = phoneNumberFormatter(req.body.number);
-  const message = 'hai '+req.body.number;
+ const number = phoneNumberFormatter(req.body.number);
+  const message = req.body.message;
 
   const isRegisteredNumber = await checkRegisteredNumber(number);
 
